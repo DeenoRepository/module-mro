@@ -1,3 +1,4 @@
+export * from './domain/maintenance-models.js';
 export * from './domain/maintenance-service.js';
 export * from './domain/work-order-aggregate.js';
 
@@ -7,9 +8,9 @@ export const MroModule = {
   async onInit(ctx: any) {
     ctx.registerNavigation({
       id: 'mro-menu',
-      title: 'Maintenance & Overhaul',
+      title: 'Maintenance & Repairs',
       path: '/mro',
-      permission: 'mro:schedule:read'
+      permission: 'mro:work_order:read'
     });
   },
   async onStart() {},
