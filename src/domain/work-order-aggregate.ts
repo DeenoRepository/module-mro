@@ -20,9 +20,12 @@ export interface MroOutboxRecord {
 }
 
 export class WorkOrderAggregate {
+  private _props: WorkOrderProps;
   private _outbox: MroOutboxRecord[] = [];
 
-  constructor(private props: WorkOrderProps) {}
+  constructor(props: WorkOrderProps) {
+    this._props = { ...props };
+  }
 
   static create(props: Omit<WorkOrderProps, 'status'>): WorkOrderAggregate {
     const aggregate = new WorkOrderAggregate({
@@ -40,7 +43,7 @@ export class WorkOrderAggregate {
   }
 
   get props(): Readonly<WorkOrderProps> {
-    return Object.freeze({ ...this.props });
+    return Object.freeze({ ...this._props });
   }
 
   get outboxEvents(): readonly MroOutboxRecord[] {
@@ -48,26 +51,26 @@ export class WorkOrderAggregate {
   }
 
   startWork(): void {
-    if (this.props.status !== 'PLANNED') {
+    if (this._props.status !== 'PLANNED') {
       throw new Error('Only PLANNED work orders can be started');
     }
-    this.props.status = 'IN_PROGRESS';
+    this._props.status = 'IN_PROGRESS';
     this.recordOutbox('mro.work_order.started', {
-      workOrderId: this.props.id,
-      equipmentId: this.props.equipmentId
+      workOrderId: this._props.id,
+      equipmentId: this._props.equipmentId
     });
   }
 
   complete(operatingHours: number): void {
-    if (this.props.status !== 'IN_PROGRESS') {
+    if (this._props.status !== 'IN_PROGRESS') {
       throw new Error('Only IN_PROGRESS work orders can be completed');
     }
-    this.props.status = 'COMPLETED';
-    this.props.operatingHoursAtCompletion = operatingHours;
+    this._props.status = 'COMPLETED';
+    this._props.operatingHoursAtCompletion = operatingHours;
 
     this.recordOutbox('mro.maintenance.completed', {
-      workOrderId: this.props.id,
-      equipmentId: this.props.equipmentId,
+      workOrderId: this._props.id,
+      equipmentId: this._props.equipmentId,
       completedAt: new Date().toISOString(),
       operatingHours
     });
@@ -77,7 +80,7 @@ export class WorkOrderAggregate {
     this._outbox.push({
       id: crypto.randomUUID(),
       aggregateType: 'WorkOrder',
-      aggregateId: this.props.id,
+      aggregateId: this._props.id,
       eventType,
       payload,
       createdAt: new Date().toISOString(),
