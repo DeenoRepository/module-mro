@@ -1,0 +1,12 @@
+﻿{
+  "$schema": "https://ems-platform.local/schemas/module-manifest.v1.json",
+  "id": "module-mro",
+  "name": "Maintenance, Repair & Overhaul",
+  "version": "1.0.0",
+  "database": { "schema": "mro" },
+  "permissions": ["mro:schedule:read", "mro:schedule:write", "mro:workorder:execute"],
+  "events": {
+    "publishes": ["mro.work_order.created", "mro.spare_parts.requested", "mro.maintenance.completed"],
+    "subscribes": ["eps.equipment.decommissioned"]
+  }
+}
